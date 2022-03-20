@@ -1,3 +1,11 @@
+
+    Hierarchical Clustering
+-----------
+
+
+
+
+
 # Hierarchical clustering: ward
 let's run clustering withu the 'ward' method and plot.
 
