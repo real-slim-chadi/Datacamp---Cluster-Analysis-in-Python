@@ -84,3 +84,114 @@ plt.show()
 ![Elbow plot of a uniform distribution](img/Figure%203.svg)
 
 the elbow is not well defined here. So we can't really choose.
+
+# Limitation of K-Means clustering
+- Find the right number of clusters _k_
+- Impact of seeds
+- Biased towards equal sized clusters
+
+## Impact of Seeds
+Let's see if seeds impact the comic con dataset
+
+    code:
+```py
+# Import random class
+from numpy import random
+
+# Initialize seed
+random.seed(0)
+
+# Run kmeans clustering
+cluster_centers, distortion = kmeans(comic_con[['x_scaled', 'y_scaled']], 2)
+comic_con['cluster_labels'], distortion_list = vq(comic_con[['x_scaled', 'y_scaled']], cluster_centers)
+
+# Plot the scatterplot
+sns.scatterplot(x='x_scaled', y='y_scaled', 
+                hue='cluster_labels', data = comic_con)
+plt.show()
+```
+
+    plot:
+![kmeans clustering of seed](img/Figure%204.svg)
+
+These cluisters do not change as the dataset has clearly defined clusers.
+
+We tried `[1,2,1000]`
+
+## Uniform Data: mouse like data
+Let's do kmeans clustering on a dataset having a mouuse like sjhape
+
+```py
+
+# Import the kmeans and vq functions
+from scipy.cluster.vq import kmeans, vq
+
+# Generate cluster centers
+cluster_centers, distortion = kmeans(mouse[['x_scaled','y_scaled']],3)
+
+# Assign cluster labels
+mouse['cluster_labels'], distortion_list = vq(mouse[['x_scaled','y_scaled']],cluster_centers)
+
+# Plot clusters
+sns.scatterplot(x='x_scaled', y='y_scaled', 
+                hue='cluster_labels', data = mouse)
+plt.show()
+```
+    Plot:
+![mouse likel kmeans](img/Figure%205.svg)
+
+    kmeans is unable to capture the three visible clusters clearly. 
+
+    The two clusters towards the top have taken in some points along the boundary. 
+
+    This happens due to the underlying assumption in kmeans algorithm to minimize distortions which leads to clusters that are similar in terms of area.
+# FIFA time
+let's star by first preparing out stuff.
+## Imports
+we import hte libraries and the CSV file as a Dataframe
+```py
+from scipy.cluster.vq import kmeans,vq ,whiten
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+from numpy import random
+
+
+
+fifa= pd.read_csv('data/fifa_18_sample_data.csv')
+```
+## Normalize
+We normalize the data in question: `def` and `phy`
+```py
+
+fifa['scaled_def']=whiten(fifa['def'])
+fifa['scaled_phy']=whiten( fifa['phy'])
+```
+
+perfect.
+## Set a random seed
+```py
+random.seed([1000,2000])
+```
+
+
+## Fit the data into a k-means algorithm
+```py
+cluster_centers,_ = kmeans(fifa[['scaled_def', 'scaled_phy']], 3)
+```
+## Assign cluster labels
+```py
+fifa['cluster_labels'], _ = vq(fifa[['scaled_def', 'scaled_phy']], cluster_centers)
+```
+
+## Display cluster centers 
+```py
+print(fifa[['scaled_def', 'scaled_phy', 'cluster_labels']].groupby('cluster_labels').mean())
+```
+# Create a scatter plot through seaborn
+![Scatter plot of kmeans clusternf fifa phys/def](img/Figure%206.png)
+```py
+sns.scatterplot(x="scaled_def", y='scaled_phy', hue='cluster_labels', data=fifa)
+plt.show()
+```
+Enjoy :)
